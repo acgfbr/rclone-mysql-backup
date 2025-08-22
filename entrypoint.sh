@@ -2,8 +2,14 @@
 
 set -euo pipefail
 
-# shellcheck disable=SC2086
-mydumper --host "$MYSQL_HOST" --user $MYSQL_USER --password $MYSQL_PASSWORD --port $MYSQL_PORT --database $MYSQL_DATABASE -C -c --clear -o backup
+# Generate timestamp for filename
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="backup_${TIMESTAMP}.sql"
+
+# Create backup using mysqldump
+mysqldump --host="$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --port="$MYSQL_PORT" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+
+# Configure rclone
 rclone config touch
 cat <<EOF > ~/.config/rclone/rclone.conf
 [remote]
@@ -14,4 +20,6 @@ secret_access_key = $R2_SECRET_ACCESS_KEY
 endpoint = $R2_ENDPOINT
 acl = private
 EOF
-rclone sync backup remote:"$R2_BUCKET"/"$R2_PATH"
+
+# Upload the backup file to R2
+rclone copy "$BACKUP_FILE" remote:"$R2_BUCKET"/"$R2_PATH"

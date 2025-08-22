@@ -2,7 +2,7 @@
 
 FROM rclone/rclone:1.70.3 as rclone
 
-FROM mydumper/mydumper:v0.19.4-2
+FROM mysql:8.0
 
 COPY --from=rclone /usr/local/bin/rclone /usr/local/bin/rclone
 
