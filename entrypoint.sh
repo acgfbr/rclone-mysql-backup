@@ -4,10 +4,10 @@ set -euo pipefail
 
 # Generate timestamp for filename
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_FILE="backup_${TIMESTAMP}.sql"
+BACKUP_FILE="backup_${TIMESTAMP}.sql.gz"
 
-# Create backup using mysqldump
-mysqldump --host="$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --port="$MYSQL_PORT" "$MYSQL_DATABASE" > "$BACKUP_FILE"
+# Create backup using mysqldump and compress with gzip
+mysqldump --host="$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --port="$MYSQL_PORT" "$MYSQL_DATABASE" | gzip > "$BACKUP_FILE"
 
 # Configure rclone
 rclone config touch
